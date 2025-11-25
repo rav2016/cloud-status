@@ -47,33 +47,44 @@
     <h2>Google Cloud</h2>
     <ul id="gcp-feed"></ul>
   </div>
+<script>
+  const feeds = {
+    azure: "https://api.rss2json.com/v1/api.json?rss_url=https://azure.status.microsoft/en-us/status/feed/",
+    aws: "https://api.rss2json.com/v1/api.json?rss_url=http://status.aws.amazon.com/rss/all.rss",
+    gcp: "https://api.rss2json.com/v1/api.json?rss_url=https://status.cloud.google.com/en/feed.atom"
+  };
 
-  <script>
-    const feeds = {
-      azure: "https://api.rss2json.com/v1/api.json?rss_url=https://azure.status.microsoft/en-us/status/feed/",
-      aws: "https://api.rss2json.com/v1/api.json?rss_url=http://status.aws.amazon.com/rss/all.rss",
-      gcp: "https://api.rss2json.com/v1/api.json?rss_url=https://status.cloud.google.com/en/feed.atom"
-    };
-
-    function loadFeed(provider, elementId) {
-      fetch(feeds[provider])
-        .then(response => response.json())
-        .then(data => {
-          const list = document.getElementById(elementId);
-          data.items.slice(0, 5).forEach(item => {
-            const li = document.createElement('li');
-            li.innerHTML = `${item.link}${item.title}</a> - ${new Date(item.pubDate).toLocaleString()}`;
-            list.appendChild(li);
-          });
-        })
-        .catch(() => {
-          document.getElementById(elementId).innerHTML = "<li>Error loading feed.</li>";
+  function loadFeed(provider, elementId) {
+    fetch(feeds[provider])
+      .then(response => response.json())
+      .then(data => {
+        const list = document.getElementById(elementId);
+        list.innerHTML = ""; // Clear previous entries
+        data.items.slice(0, 5).forEach(item => {
+          const li = document.createElement('li');
+          li.innerHTML = `${item.link}${item.title}</a> - ${new Date(item.pubDate).toLocaleString()}`;
+          list.appendChild(li);
         });
-    }
+      })
+      .catch(() => {
+        document.getElementById(elementId).innerHTML = "<li>Error loading feed.</li>";
+      });
+  }
 
+  function refreshAllFeeds() {
     loadFeed('azure', 'azure-feed');
     loadFeed('aws', 'aws-feed');
     loadFeed('gcp', 'gcp-feed');
-  </script>
+  }
+
+  // Initial load
+  refreshAllFeeds();
+
+  // Refresh every 5 minutes (300,000 milliseconds)
+  setInterval(refreshAllFeeds, 300000);
+</script>
+
+
+  
 </body>
 </html>
