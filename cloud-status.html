@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cloud Provider Health Status</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    .status-box {
+      border: 1px solid #ccc;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+    h1 {
+      color: #333;
+    }
+    h2 {
+      margin-top: 0;
+      color: #005a9c;
+    }
+    ul {
+      padding-left: 20px;
+    }
+    li {
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Cloud Provider Health Status</h1>
+
+  <div class="status-box">
+    <h2>Azure</h2>
+    <ul id="azure-feed"></ul>
+  </div>
+
+  <div class="status-box">
+    <h2>AWS</h2>
+    <ul id="aws-feed"></ul>
+  </div>
+
+  <div class="status-box">
+    <h2>Google Cloud</h2>
+    <ul id="gcp-feed"></ul>
+  </div>
+
+  <script>
+    const feeds = {
+      azure: "https://api.rss2json.com/v1/api.json?rss_url=https://azure.status.microsoft/en-us/status/feed/",
+      aws: "https://api.rss2json.com/v1/api.json?rss_url=http://status.aws.amazon.com/rss/all.rss",
+      gcp: "https://api.rss2json.com/v1/api.json?rss_url=https://status.cloud.google.com/en/feed.atom"
+    };
+
+    function loadFeed(provider, elementId) {
+      fetch(feeds[provider])
+        .then(response => response.json())
+        .then(data => {
+          const list = document.getElementById(elementId);
+          data.items.slice(0, 5).forEach(item => {
+            const li = document.createElement('li');
+            li.innerHTML = `${item.link}${item.title}</a> - ${new Date(item.pubDate).toLocaleString()}`;
+            list.appendChild(li);
+          });
+        })
+        .catch(() => {
+          document.getElementById(elementId).innerHTML = "<li>Error loading feed.</li>";
+        });
+    }
+
+    loadFeed('azure', 'azure-feed');
+    loadFeed('aws', 'aws-feed');
+    loadFeed('gcp', 'gcp-feed');
+  </script>
+</body>
+</html>
